@@ -3,6 +3,7 @@ from typing import Any
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi import FastAPI, Response
+from participant_self_care.tado_decorator import require_tado_auth
 from rich import print
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
@@ -31,22 +32,23 @@ oauth.register(**tado_config.model_dump())
 
 
 @app.get("/")
+@require_tado_auth(tado_config=tado_config)
 async def homepage(request: Request) -> Response:
-    token = request.session.get("token")
-    if token:
-        tadoclient = TadoClient.get_client(TadoToken(**token), tado_config)
-        me = await tadoclient.populated_user()
-        html = (
-            f"<pre>{me.model_dump_json(indent=4)}</pre>" '<a href="/logout">logout</a>'
-        )
-        return HTMLResponse(html)
-    return HTMLResponse('<a href="/login">login</a>')
+    tadoclient = request.state.tadoclient
+    me = await tadoclient.populated_user()
+    html = f"<pre>{me.model_dump_json(indent=4)}</pre>" '<a href="/logout">logout</a>'
+    return HTMLResponse(html)
+
+
+@app.get("/login/tado")
+async def login(request: Request) -> Any:
+    redirect_uri = config("TADO_REDIRECT_URI")
+    return await oauth.tado.authorize_redirect(request, redirect_uri)
 
 
 @app.get("/login")
 async def login(request: Request) -> Any:
-    redirect_uri = config("TADO_REDIRECT_URI")
-    return await oauth.tado.authorize_redirect(request, redirect_uri)
+    return HTMLResponse('<a href="/login/tado">Login with tado</a>')
 
 
 @app.get("/auth")
@@ -64,6 +66,7 @@ async def auth(request: Request) -> Response:
 
 
 @app.get("/me")
+@require_tado_auth(tado_config=tado_config)
 async def me(request: Request) -> Response:
     """
     A deug route to show the user information. To be refres
