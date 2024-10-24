@@ -1,8 +1,13 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+import pathlib
 import time
-from typing import Any
+from typing import Any, Dict
+from dotenv import load_dotenv
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
-from fastapi import FastAPI, Response
+from fastapi import Depends, FastAPI, Response
+from fastapi.staticfiles import StaticFiles
 from participant_self_care.tado_decorator import require_tado_auth
 from rich import print
 from starlette.config import Config
@@ -12,12 +17,60 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from tadoclient.client import TadoClient
 from tadoclient.models import TadoClientConfig, TadoToken
 
+from participant_self_care.users.db import User, create_db_and_tables
+from participant_self_care.users.schemas import UserCreate, UserRead, UserUpdate
+from participant_self_care.users.users import (
+    auth_backend,
+    current_active_user,
+    fastapi_users,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    await create_db_and_tables()
+    yield
+
+
+load_dotenv()
+
 config = Config(".env")
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=config("TADO_OAUTH_APP_SECRET"))
 
-oauth = OAuth(config)
+### USERS
+
+PARTICIPANT_PATH_PREFIX = "/participant"
+app.include_router(
+    fastapi_users.get_auth_router(auth_backend),
+    prefix=f"{PARTICIPANT_PATH_PREFIX}/auth/jwt",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix=f"{PARTICIPANT_PATH_PREFIX}/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix=f"{PARTICIPANT_PATH_PREFIX}/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_verify_router(UserRead),
+    prefix=f"{PARTICIPANT_PATH_PREFIX}/auth",
+    tags=["auth"],
+)
+app.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix=f"{PARTICIPANT_PATH_PREFIX}/users",
+    tags=["users"],
+)
+
+### TADO
+tado_oauth = OAuth(config)
+
 
 tado_config = TadoClientConfig(
     client_id=config("TADO_CLIENT_ID"),
@@ -28,10 +81,10 @@ tado_config = TadoClientConfig(
     access_token_url=config("TADO_TOKEN_URL"),
 )
 
-oauth.register(**tado_config.model_dump())
+tado_oauth.register(**tado_config.model_dump())
 
 
-@app.get("/")
+@app.get("/tado/dashboard")
 @require_tado_auth(tado_config=tado_config)
 async def homepage(request: Request) -> Response:
     tadoclient = request.state.tadoclient
@@ -40,66 +93,43 @@ async def homepage(request: Request) -> Response:
     return HTMLResponse(html)
 
 
-@app.get("/login/tado")
-async def login(request: Request) -> Any:
+@app.get("/tado/login")
+async def tado_login(request: Request) -> Any:
     redirect_uri = config("TADO_REDIRECT_URI")
-    return await oauth.tado.authorize_redirect(request, redirect_uri)
+    return await tado_oauth.tado.authorize_redirect(request, redirect_uri)
 
 
-@app.get("/login")
-async def login(request: Request) -> Any:
-    return HTMLResponse('<a href="/login/tado">Login with tado</a>')
-
-
-@app.get("/auth")
+@app.get("/tado/auth")
 async def auth(request: Request) -> Response:
     try:
-        token = await oauth.tado.authorize_access_token(request)
+        token = await tado_oauth.tado.authorize_access_token(request)
         print(token)
     except OAuthError as error:
         print(error)
         return HTMLResponse(f"<h1>{error.error}</h1>")
     if token:
         token["expires_at"] = int(token.get("expires_in", 0) + time.time())
-        request.session["token"] = TadoToken(**token).model_dump()
+        request.session["tado_token"] = TadoToken(**token).model_dump()
     return RedirectResponse(url="/")
 
 
-@app.get("/me")
-@require_tado_auth(tado_config=tado_config)
-async def me(request: Request) -> Response:
-    """
-    A deug route to show the user information. To be refres
-    FIXME: do this with decorators for tadoclient
-    """
-    token = request.session.get("token")
-    if token:
-        tadoclient = TadoClient.get_client(TadoToken(**token), tado_config)
-        if tadoclient.token.expires_at < time.time():
-            new_token = await tadoclient.refresh_token()
-            request.session["token"] = new_token.model_dump()
+@app.get("/")
+async def dashboard(
+    user: User = Depends(current_active_user),
+) -> Response:
+    return HTMLResponse(f"Hello, {user.email}!")
 
-        me = await tadoclient.get_user()
 
-        token_expires_date = time.strftime(
-            "%Y-%m-%d %H:%M:%S", time.localtime(tadoclient.token.expires_at)
-        )
-        refresh_token_expires_date = time.strftime(
-            "%Y-%m-%d %H:%M:%S",
-            time.localtime(tadoclient.token.expires_at + 365 * 24 * 60 * 60),
-        )
-        html = (
-            f"<pre>{me.model_dump_json(indent=4)}</pre>"
-            f"<p>Token expires at: {token_expires_date}</p>"
-            f"<p>Refresh token expires at: {refresh_token_expires_date}</p>"
-        )
-        return HTMLResponse(html)
-    return RedirectResponse(url="/login")
+@app.get("/login")
+async def login() -> Response:
+    login_path = pathlib.Path(__file__).parent / "static" / "login.html"
+    with open(login_path) as f:
+        return HTMLResponse(f.read())
 
 
 @app.get("/logout")
 async def logout(request: Request) -> Response:
-    request.session.pop("token", None)
+    request.session.pop("tado_token", None)
     return RedirectResponse(url="/")
 
 

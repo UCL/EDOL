@@ -42,7 +42,7 @@ def require_tado_auth(
 
             try:
                 # Get token from session
-                token = request.session.get("token")
+                token = request.session.get("tado_token")
                 if not token:
                     return RedirectResponse(url="/login")
 
@@ -54,7 +54,7 @@ def require_tado_auth(
                 if tadoclient.token.expires_at - current_time < refresh_before:
                     try:
                         new_token = await tadoclient.refresh_token()
-                        request.session["token"] = new_token.model_dump()
+                        request.session["tado_token"] = new_token.model_dump()
                         # Reinitialize client with new token
                         tadoclient = TadoClient.get_client(new_token, tado_config)
                     except Exception as e:
