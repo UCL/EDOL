@@ -1,6 +1,6 @@
-from collections.abc import AsyncGenerator
-import uuid
 import os
+import uuid
+from collections.abc import AsyncGenerator
 from typing import Optional
 
 from fastapi import Depends, Request, Response
@@ -11,7 +11,6 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
-
 from participant_self_care.users.db import User, get_user_db
 
 
