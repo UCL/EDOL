@@ -1,22 +1,14 @@
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
 import pathlib
 import time
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from typing import Any, Dict
-from dotenv import load_dotenv
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 from participant_self_care.tado_decorator import require_tado_auth
-from rich import print
-from starlette.config import Config
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse
-from tadoclient.client import TadoClient
-from tadoclient.models import TadoClientConfig, TadoToken
-
 from participant_self_care.users.db import User, create_db_and_tables
 from participant_self_care.users.schemas import UserCreate, UserRead, UserUpdate
 from participant_self_care.users.users import (
@@ -24,6 +16,13 @@ from participant_self_care.users.users import (
     current_active_user,
     fastapi_users,
 )
+from rich import print
+from starlette.config import Config
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, RedirectResponse
+from tadoclient.client import TadoClient
+from tadoclient.models import TadoClientConfig, TadoToken
 
 
 @asynccontextmanager
