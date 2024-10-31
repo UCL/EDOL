@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "hpmorg"
+version = "0.1.0"
+description = "A wrapper for heatpumpmonitor"
+authors = ["Cristian Dinu <c.dinu@ucl.ac.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
