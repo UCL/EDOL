@@ -3,6 +3,9 @@ data/
 cache/
 *.csv
 *.parquet
+*.sqlite
+*.sqlite3
+*.db
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,vim,node,linux,macos,python,windows,intellij,backup
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,vim,node,linux,macos,python,windows,intellij,backup
@@ -173,7 +176,6 @@ fabric.properties
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*
@@ -509,7 +511,7 @@ pyrightconfig.json
 ### Vim ###
 # Swap
 [._]*.s[a-v][a-z]
-!*.svg  # comment out if you don't need vector files
+!*.svg # comment out if you don't need vector files
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
