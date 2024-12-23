@@ -85,7 +85,7 @@ class TadoClient:
                 raise TadoClientError("Failed to get zones")
             return [Zone(**zone) for zone in response.json()]
 
-    async def get_state(self, home_id: int, zone_id: int) -> ZoneState:
+    async def get_zone_state(self, home_id: int, zone_id: int) -> ZoneState:
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{self.api_base_url}/homes/{home_id}/zones/{zone_id}/state",
@@ -145,7 +145,7 @@ class TadoClient:
             home.webhooks = webhooks
 
             zone_states = await asyncio.gather(
-                *[self.get_state(home.id, zone.id) for zone in zones]
+                *[self.get_zone_state(home.id, zone.id) for zone in zones]
             )
 
             for zone, state in zip(zones, zone_states):

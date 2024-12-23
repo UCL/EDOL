@@ -10,6 +10,7 @@ package-mode = false
 python = "^3.12"
 tadoclient = { path = "clients/tadoclient", develop = true }
 participant_self_care = { path = "web/participant-self-care", develop = true }
+copernicus_cds = { path = "clients/copernicus_cds", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

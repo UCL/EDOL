@@ -12,6 +12,7 @@ class TadoClientConfig(BaseModel):
     client_id: str
     client_secret: str
     authorize_url: str
+    redirect_uri: str
     authorize_params: dict[str, str] = {
         "response_type": "code",
         "scope": "identity:read home.webhooks home.details:read home.operation:read",
@@ -33,7 +34,7 @@ TadoWebHookEventType = Literal[
 class TadoToken(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: Literal["bearer"]
+    token_type: Literal["bearer"] = "bearer"
     expires_at: int
 
     def __hash__(self) -> int:
