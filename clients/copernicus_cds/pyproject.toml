@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "copernicus-cds"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+cdsapi = "^0.7.5"
+xarray = "^2024.11.0"
+scipy = "^1.14.1"
+netcdf4 = "^1.7.2"
+pandas = "^2.2.3"
+numpy = "^2.2.0"
+h5netcdf = "^1.4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

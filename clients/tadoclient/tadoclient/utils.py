@@ -9,5 +9,4 @@ def is_token_expired(token: TadoToken | None) -> bool:
     exp = token.expires_at
     if not exp:
         return True
-    print(exp, time.time())
     return exp < time.time()
