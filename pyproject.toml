@@ -12,6 +12,7 @@ tadoclient = { path = "clients/tadoclient", develop = true }
 participant_self_care = { path = "web/participant-self-care", develop = true }
 copernicus_cds = { path = "clients/copernicus_cds", develop = true }
 vaillant = { path = "clients/vaillant", develop = true }
+edol_cli = { path = "edol-cli", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
