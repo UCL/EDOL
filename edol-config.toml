@@ -1,0 +1,8 @@
+debug=false
+
+[climate]
+a="b"
+
+[vaillant]
+c="d"
+
