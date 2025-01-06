@@ -1,6 +1,8 @@
 # data or cache files
 data/
 cache/
+.vscode/
+
 *.csv
 *.parquet
 *.sqlite
