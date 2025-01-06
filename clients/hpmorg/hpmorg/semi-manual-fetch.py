@@ -24,13 +24,14 @@ done > data/heatpump_elec.tsv
 
 """
 
-import requests
-import pandas as pd
-from datetime import datetime, timedelta
-from typing import Iterator, Tuple
 import logging
-from pathlib import Path
 import time
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Iterator, Tuple
+
+import pandas as pd
+import requests
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -45,7 +46,7 @@ class HeatPumpDataCollector:
     ):
         self.base_url = base_url
         self.users_data = pd.read_csv(
-            input_file, sep="\s+", names=["user_id", "start_time", "end_time"]
+            input_file, sep=r"\s+", names=["user_id", "start_time", "end_time"]
         )
 
     def generate_date_ranges(
