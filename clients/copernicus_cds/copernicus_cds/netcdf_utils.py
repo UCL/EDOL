@@ -65,6 +65,14 @@ class NetCDFProcessor:
         )
         df = ds.to_dataframe().reset_index()
 
+        # filter grid cells of interest
+        # i tried to do it with the ds xarray, but it crashed the process
+        if self.config.grid_cells_of_interest:
+            logger.debug(
+                f"Filtering {len(self.config.grid_cells_of_interest)} grid cells of interest"
+            )
+            df = df[df["grid_cell"].isin(self.config.grid_cells_of_interest)]
+
         # drop columns that are not in the default output columns
         if self.config.output_columns:
             available_columns = ["valid_time"]

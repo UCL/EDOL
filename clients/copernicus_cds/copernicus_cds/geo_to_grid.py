@@ -25,7 +25,7 @@ class EdolGridCell:
         self.yy = yy
 
     def __str__(self):
-        return f"{self.xx:%02d}_{self.yy:%02d}"
+        return f"{self.xx:02d}_{self.yy:02d}"
 
     def __repr__(self):
         return f"{self.xx:02d}_{self.yy:02d}"
