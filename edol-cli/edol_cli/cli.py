@@ -37,15 +37,13 @@ def main(
     EDOL Glowmarkt CLI tool.
     """
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.DEBUG if debug else logging.INFO,
         format="%(asctime)s %(levelname)s\t| %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     if debug:
         logger.debug("Debug mode enabled.")
-    else:
-        logger.setLevel(logging.INFO)
 
     c = Config(config_toml_path=config)
 
