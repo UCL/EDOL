@@ -134,7 +134,15 @@ class NetCDFProcessor:
                 if self.config.output_columns:
                     self.dataframe = self.dataframe[self.config.output_columns]
 
-                self.dataframe.to_csv(output_path, index=False)
+                # sort by "grid_cell","analysis_date" ascending
+                self.dataframe.sort_values(
+                    by=["grid_cell", "analysis_date"], inplace=True
+                )
+
+                # isodates with T and Z
+                self.dataframe.to_csv(
+                    output_path, index=False, date_format="%Y-%m-%dT%H:%M:%SZ"
+                )
                 logger.debug(f"Saved combined data to {output_path}")
 
         except zipfile.BadZipFile:
