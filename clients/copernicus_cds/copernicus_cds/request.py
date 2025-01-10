@@ -1,13 +1,12 @@
 import datetime
 from calendar import monthrange
 from pathlib import Path
-from typing import List, get_args
+from typing import List, Tuple, get_args
 
 import cdsapi
-from copernicus_cds.schemas import CDS_Request_Variable
+from copernicus_cds.schemas import Default_CDS_Request_Variables
 
-DEFAULT_VARIABLES = list(get_args(CDS_Request_Variable))
-UK_BOUNDING_BOX = [61, -8, 49.9, 2]
+UK_BOUNDING_BOX = (61, -8, 49.9, 2)
 
 
 def get_month_days(year: int, month: int) -> List[str]:
@@ -16,7 +15,7 @@ def get_month_days(year: int, month: int) -> List[str]:
     return [f"{day:02d}" for day in range(1, num_days + 1)]
 
 
-def validate_bounding_box(area):
+def validate_bounding_box(area: Tuple[int, int, int, int]):
     if len(area) != 4:
         raise ValueError("Area should be a list of 4 integers")
 
@@ -39,11 +38,12 @@ def validate_bounding_box(area):
         raise ValueError("Longitude should be in ascending order")
 
 
-def get_era5_month_request_dict(
+def get_era5_request_dict(
     year: int,
     month: int,
-    area: list[int] = UK_BOUNDING_BOX,
-    variables: list[str] = DEFAULT_VARIABLES,
+    day: List[str] | int | None = None,
+    area: Tuple[float, float, float, float] = UK_BOUNDING_BOX,
+    variables: list[str] = Default_CDS_Request_Variables,
 ) -> dict:
     """
     Returns a dictionary to be used as the request body
@@ -62,17 +62,34 @@ def get_era5_month_request_dict(
 
     # validate variables
     for variable in variables:
-        if variable not in DEFAULT_VARIABLES:
+        if variable not in Default_CDS_Request_Variables:
             raise ValueError(f"Variable {variable} is not supported")
 
+    if day is None:
+        # default to all days in the month
+        day_list = get_month_days(year, month)
+    elif isinstance(day, int):
+        # one day
+        if day < 1 or day > 31:
+            raise ValueError("Day should be between 1 and 31")
+        day_list = [f"{day:02d}"]
+    elif isinstance(day, list):
+        # validate the day list
+        for d in day:
+            if d < 1 or d > 31:
+                raise ValueError("Day should be between 1 and 31")
+        day_list = [f"{d:02d}" for d in day]
+    else:
+        raise ValueError("Day should be an integer or a list of integers or None")
+
     return {
-        "product_type": "reanalysis",
+        "product_type": ["reanalysis"],
         "data_format": "netcdf",
         "download_format": "unarchived",
         "variable": variables,
         "year": year,
         "month": month,
-        "day": get_month_days(year, month),
+        "day": day_list,
         "time": [
             "00:00",
             "01:00",
@@ -103,32 +120,30 @@ def get_era5_month_request_dict(
     }
 
 
-def request_era5_montly_files(
+def request_era5_files(
     path: Path,
     year: int,
     month: int,
-    area: list[int] = UK_BOUNDING_BOX,
-    variables: list[str] = DEFAULT_VARIABLES,
+    day: List[str] | int | None = None,
+    area: Tuple[float, float, float, float] = UK_BOUNDING_BOX,
+    variables: list[str] = Default_CDS_Request_Variables,
 ) -> None:
     """
     Request ERA5 monthly files from the Copernicus Climate Data Store API
     and save them to the output directory
+
+    Args:
+    path (Path): Path to save the output files
+    year (int): Year to request data for
+    month (int): Month to request data for
+    day (List[str] | int | None): List of days to request data for. Default is None which means all days in the month
+    area (Tuple[float, float, float, float]): Bounding box for the data retrieval in the format 'lon_min,lat_min,lon_max,lat_max'. Default is UK
+    variables (list[str]): List of parameters to retrieve from the CDS API. Default is the list of default variables in the copernicus_cds.schemas module
     """
 
     c = cdsapi.Client()
 
-    request_dict = get_era5_month_request_dict(year, month, area, variables)
+    request_dict = get_era5_request_dict(
+        year=year, month=month, day=day, area=area, variables=variables
+    )
     c.retrieve("reanalysis-era5-single-levels", request_dict, path)
-
-
-if __name__ == "__main__":
-    # Request ERA5 monthly files for the UK for the previous month
-    last_month = datetime.date.today().replace(day=1) - datetime.timedelta(1)
-    year = last_month.year
-    month = last_month.month
-
-    # time the request
-    start = datetime.datetime.now()
-    request_era5_montly_files(f"uk_{year}_{month}.nc", year, month)
-    print("Saved files to disk", f"uk_{year}_{month}.nc")
-    print(f"Request took {datetime.datetime.now() - start}")

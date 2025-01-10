@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 
 def magic_transform_coorinates_to_grid(
@@ -25,10 +25,10 @@ class EdolGridCell:
         self.yy = yy
 
     def __str__(self):
-        return f"{self.xx}_{self.yy}"
+        return f"{self.xx:02d}_{self.yy:02d}"
 
     def __repr__(self):
-        return f"{self.xx}_{self.yy}"
+        return f"{self.xx:02d}_{self.yy:02d}"
 
     def __eq__(self, other):
         return self.xx == other.xx and self.yy == other.yy

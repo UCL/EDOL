@@ -1,6 +1,9 @@
-from typing import Literal
+from typing import List, Literal, get_args
 
-CDS_Request_Variable = Literal[
+"""
+Type for a default variable to request from the CDS API.
+"""
+Default_CDS_Request_Variable = Literal[
     "mean_total_precipitation_rate",
     "precipitation_type",
     "surface_pressure",
@@ -26,3 +29,13 @@ CDS_Request_Variable = Literal[
     "10m_u_component_of_wind",
     "10m_v_component_of_wind",
 ]
+
+"""
+Type for a list of default variables to request from the CDS API.
+"""
+Default_CDS_Request_Variable_List = List[Default_CDS_Request_Variable]
+
+"""
+The list of default variables to request from the CDS API.
+"""
+Default_CDS_Request_Variables = list(get_args(Default_CDS_Request_Variable))
