@@ -304,33 +304,3 @@ class VaillantApi:
         # FIXME: impelement the response parsing
         with open(f"register_client_{response.status_code}_{serial}.json", "w") as f:
             f.write(response.text)
-
-
-# FIXME: remove this testing code
-if __name__ == "__main__":
-    import http.client
-    import logging
-
-    http.client.HTTPConnection.debuglevel = 1
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    requests_log = logging.getLogger("urllib3")
-    requests_log.setLevel(logging.DEBUG)
-    requests_log.propagate = True
-
-    config = VaillantApiConfig()
-    serials = os.getenv("VAILLANT_TEST_SERIALS", "").split(",")
-
-    client = VaillantApi(config, serials=serials)
-    # client.get_single_consumption(serials[0], scale="hourly")
-    # client.get_components_consumption(serials[0], scale="hourly")
-    # client.get_single_consumption(serials[0], scale="hourly")
-    # client.get_system_settings(serials[1])
-    # client.get_topology(serials[0])
-    client.register_client(
-        serial=serials[0],
-        email="someone@example.com",
-        country="GB",
-    )
-
-    client.get_contract_systems()
