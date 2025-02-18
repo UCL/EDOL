@@ -544,6 +544,17 @@ workspaces-web = ["types-boto3-workspaces-web (>=1.36.0,<1.37.0)"]
 xray = ["types-boto3-xray (>=1.36.0,<1.37.0)"]
 
 [[package]]
+name = "types-protobuf"
+version = "5.29.1.20250208"
+description = "Typing stubs for protobuf"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "types_protobuf-5.29.1.20250208-py3-none-any.whl", hash = "sha256:c5f8bfb4afdc1b5cbca1848f2c8b361a2090add7401f410b22b599ef647bf483"},
+    {file = "types_protobuf-5.29.1.20250208.tar.gz", hash = "sha256:c1acd6a59ab554dbe09b5d1fa7dd701e2fcfb2212937a3af1c03b736060b792a"},
+]
+
+[[package]]
 name = "types-s3transfer"
 version = "0.11.2"
 description = "Type annotations and code completion for s3transfer"
@@ -574,4 +585,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "36247c8e35b8f547ec11290cfe3106406ce98b9e9ab8b43fa21bac425d428b8e"
+content-hash = "3de1c1a51c19fe89408934e3aa269370170876de3226c39a7a6568ce1108d501"
