@@ -14,15 +14,25 @@ class ChameleonS3Client:
         self.client = boto3.client("s3", region_name="eu-west-2")
         self.bucket_name = bucket
 
-    def parse_prorobuf(self, s3_file_path: str) -> Metadata:
+    def parse_protobuf(self, s3_file_path: str) -> list[Metadata]:
         response = self.client.get_object(Bucket=self.bucket_name, Key=s3_file_path)
+        raw_bytes = response["Body"].read()
 
-        obj = response["Body"].read()
+        messages = []
+        while raw_bytes:
+            metadata = Metadata()
+            try:
+                # ParseFromString returns the number of bytes read for this message
+                bytes_read = metadata.ParseFromString(raw_bytes)
+                messages.append(metadata)
+                raw_bytes = raw_bytes[
+                    bytes_read:
+                ]  # Move to the next message in the buffer
+            except Exception as e:
+                print(f"Failed to parse protobuf message: {e}")
+                break
 
-        metadata = Metadata()
-        metadata.ParseFromString(obj)
-
-        return metadata
+        return messages
 
     def get_data(
         self, prefix: str, extension: str = ".pb"
@@ -35,7 +45,8 @@ class ChameleonS3Client:
         for page in page_iterator:
             for file in page["Contents"]:
                 if file["Key"].endswith(extension):
-                    yield self.parse_prorobuf(file["Key"])
+                    for metadata in self.parse_protobuf(file["Key"]):
+                        yield metadata
                 else:
                     continue
 
@@ -46,18 +57,18 @@ if __name__ == "__main__":
     cad_counts: dict[str, int] = {}
 
     client = ChameleonS3Client()
-    for f in client.get_data("2025/02/18/11"):
+    for f in client.get_data("2025/02/18/0"):
         for e in f.events:
             event_type = e.WhichOneof("EventType")
             event_type_counts[event_type] = event_type_counts.get(event_type, 0) + 1
 
             if event_type == "power_event":
                 power_event = e.power_event
-                cad_id = power_event.cad_id
+                cad_id = power_event.cad_id + "_power"
                 cad_counts[cad_id] = cad_counts.get(cad_id, 0) + 1
             elif event_type == "sensor_event":
                 sensor_event = e.sensor_event
-                cad_id = sensor_event.cad_id
+                cad_id = sensor_event.cad_id + "_sensor"
                 cad_counts[cad_id] = cad_counts.get(cad_id, 0) + 1
             else:
                 print(f"Unknown event type: {event_type}")
