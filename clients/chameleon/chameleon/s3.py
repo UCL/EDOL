@@ -4,7 +4,7 @@ from typing import Generator
 
 import boto3
 import boto3.s3
-from generated.chameleon_pb2 import Metadata, PowerEvent, SensorEvent
+from chameleon.generated.chameleon_pb2 import Metadata, PowerEvent, SensorEvent
 
 DEFAULT_AWS_BUCKET = "edol-chameleon-pilot-bucket"
 

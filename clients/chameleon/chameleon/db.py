@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import duckdb
-from generated.chameleon_pb2 import PowerEvent, SensorEvent
+from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 
 
 class ChameleonDB:
