@@ -266,6 +266,54 @@
         }
       }
     },
+    "protobuf@latest": {
+      "last_modified": "2025-02-07T11:26:36Z",
+      "resolved": "github:NixOS/nixpkgs/d98abf5cf5914e5e4e9d57205e3af55ca90ffc1d#protobuf",
+      "source": "devbox-search",
+      "version": "29.3",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1khpi5h6ccm89jb39aiy00ar6lzk6hfs-protobuf-29.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1khpi5h6ccm89jb39aiy00ar6lzk6hfs-protobuf-29.3"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/mfzhbwmg14g4acrzmp9r34jcp3amahhd-protobuf-29.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/mfzhbwmg14g4acrzmp9r34jcp3amahhd-protobuf-29.3"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/8xnlvilzyz9zmnv2jq6xxsdqjv9p2rxk-protobuf-29.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/8xnlvilzyz9zmnv2jq6xxsdqjv9p2rxk-protobuf-29.3"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9abl0v72kijy793n1l9vbgr556fiph59-protobuf-29.3",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9abl0v72kijy793n1l9vbgr556fiph59-protobuf-29.3"
+        }
+      }
+    },
     "python@latest": {
       "last_modified": "2024-12-04T16:45:45Z",
       "plugin_version": "0.0.4",

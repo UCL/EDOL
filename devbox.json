@@ -5,7 +5,8 @@
     "python@latest",
     "poetry@latest",
     "duckdb@latest",
-    "git@latest"
+    "git@latest",
+    "protobuf@latest"
   ],
   "shell": {
     "init_hook": [
