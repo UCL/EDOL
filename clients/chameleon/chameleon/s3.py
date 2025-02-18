@@ -42,12 +42,25 @@ class ChameleonS3Client:
 
 # Example usage
 if __name__ == "__main__":
-    event_type_counts = {}
+    event_type_counts: dict[str, int] = {}
+    cad_counts: dict[str, int] = {}
 
     client = ChameleonS3Client()
-    for f in client.get_data("2025/02"):
+    for f in client.get_data("2025/02/18/11"):
         for e in f.events:
             event_type = e.WhichOneof("EventType")
             event_type_counts[event_type] = event_type_counts.get(event_type, 0) + 1
 
+            if event_type == "power_event":
+                power_event = e.power_event
+                cad_id = power_event.cad_id
+                cad_counts[cad_id] = cad_counts.get(cad_id, 0) + 1
+            elif event_type == "sensor_event":
+                sensor_event = e.sensor_event
+                cad_id = sensor_event.cad_id
+                cad_counts[cad_id] = cad_counts.get(cad_id, 0) + 1
+            else:
+                print(f"Unknown event type: {event_type}")
+
     pprint(event_type_counts)
+    pprint(cad_counts)
