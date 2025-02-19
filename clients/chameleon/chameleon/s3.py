@@ -56,6 +56,7 @@ if __name__ == "__main__":
     from chameleon.db import ChameleonDB
 
     refresh_power_table = True
+    refresh_sensor_table = True
 
     client = ChameleonS3Client()
     db = ChameleonDB("chameleon.duckdb", read_only=False)
@@ -91,8 +92,9 @@ if __name__ == "__main__":
             db.insert_power_events(power_events, refresh_table=refresh_power_table)
             refresh_power_table = False
 
-        # print(f"The first power event: {power_events[0]}")
-        # print(f"The first sensor event: {sensor_events[0]}")
-        # db.insert_sensor_events(sensor_events)
+        if sensor_events:
+            db.insert_sensor_events(sensor_events, refresh_table=refresh_sensor_table)
+            refresh_sensor_table = False
+
     pprint(event_type_counts)
     pprint(cad_counts)

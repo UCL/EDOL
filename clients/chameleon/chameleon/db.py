@@ -52,20 +52,31 @@ class ChameleonDB:
             """
         )
 
+    def create_sensor_table(self) -> None:
+        self._db.execute(
+            """
+            CREATE TABLE sensor_events (
+                event_id STRING,
+                cloud_received_timestamp TIMESTAMP,
+                cad_id STRING,
+                meter_update_timestamp TIMESTAMP,
+                type ENUM('cad', 'dcc', 'amr'),
+                reading FLOAT,
+                source ENUM('temp', 'humidity'),
+                units STRING,
+                event_metadata JSON
+            )
+            """
+        )
+
     def insert_power_events(
         self, events: list[PowerEvent], refresh_table: bool
     ) -> None:
-        # FIXME: This doesn't work because of timestamp. I would like to use
-        # native formats as much as possible, to benefit from functions, conversions, etc.
-        # so we need to find out if the event comes with milliseconds timestamp, or just seconds
-        # and convert it to a proper timestamp using duckdb's TO_TIMESTAMP family of functions.
 
         received_timestamp = [datetime.fromtimestamp(e.received / 1000) for e in events]
         reading_timestamp = [
             datetime.fromtimestamp(e.reading_timestamp / 1000) for e in events
         ]
-
-        # print(events[0].commodity)
 
         values: list[
             tuple[str, datetime, str, str, datetime, str, float, float, dict]
@@ -105,7 +116,9 @@ class ChameleonDB:
             values,
         )
 
-    def insert_sensor_events(self, events: list[SensorEvent]) -> None:
+    def insert_sensor_events(
+        self, events: list[SensorEvent], refresh_table: bool
+    ) -> None:
 
         cloud_received_timestamp = [
             datetime.fromtimestamp(e.cloud_received_timestamp / 1000) for e in events
@@ -120,7 +133,7 @@ class ChameleonDB:
                 cloud_received_timestamp[i],
                 e.cad_id,
                 meter_update_timestamp[i],
-                e.source,
+                DataSource.Name(e.source),
                 e.reading,
                 SensorType.Name(e.type),
                 e.units,
@@ -128,6 +141,11 @@ class ChameleonDB:
             )
             for i, e in enumerate(events)
         ]
+
+        if refresh_table:
+            self.delete_table("sensor_events")
+            self.create_sensor_table()
+
         self._db.executemany(
             """
             INSERT INTO sensor_events (
