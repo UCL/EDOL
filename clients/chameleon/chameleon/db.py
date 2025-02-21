@@ -52,10 +52,27 @@ class ChameleonDB:
             """
         )
 
-    def create_sensor_table(self) -> None:
+    def create_temperature_table(self) -> None:
         self._db.execute(
             """
-            CREATE TABLE sensor_events (
+            CREATE TABLE temperature_events (
+                event_id STRING,
+                cloud_received_timestamp TIMESTAMP,
+                cad_id STRING,
+                meter_update_timestamp TIMESTAMP,
+                type ENUM('cad', 'dcc', 'amr'),
+                reading FLOAT,
+                source ENUM('temp', 'humidity'),
+                units STRING,
+                event_metadata JSON
+            )
+            """
+        )
+
+    def create_humidity_table(self) -> None:
+        self._db.execute(
+            """
+            CREATE TABLE humidity_events (
                 event_id STRING,
                 cloud_received_timestamp TIMESTAMP,
                 cad_id STRING,
@@ -127,7 +144,9 @@ class ChameleonDB:
             datetime.fromtimestamp(e.meter_update_timestamp / 1000) for e in events
         ]
 
-        values: list[tuple[str, int, str, int, str, float, str, str, dict]] = [
+        temperature_values: list[
+            tuple[str, datetime, str, datetime, str, float, str, str, dict]
+        ] = [
             (
                 e.event_id,
                 cloud_received_timestamp[i],
@@ -140,15 +159,68 @@ class ChameleonDB:
                 {},
             )
             for i, e in enumerate(events)
+            if SensorType.Name(e.type) == "temp"
+        ]
+
+        humidity_values: list[
+            tuple[str, datetime, str, datetime, str, float, str, str, dict]
+        ] = [
+            (
+                e.event_id,
+                cloud_received_timestamp[i],
+                e.cad_id,
+                meter_update_timestamp[i],
+                DataSource.Name(e.source),
+                e.reading,
+                SensorType.Name(e.type),
+                e.units,
+                {},
+            )
+            for i, e in enumerate(events)
+            if SensorType.Name(e.type) == "humidity"
         ]
 
         if refresh_table:
-            self.delete_table("sensor_events")
-            self.create_sensor_table()
+            self.delete_table("temperature_events")
+            self.create_temperature_table()
+
+            self.delete_table("humidity_events")
+            self.create_humidity_table()
+
+        self.insert_temperature_events(temperature_values)
+        self.insert_humidity_events(humidity_values)
+
+        pass
+
+    def insert_temperature_events(
+        self,
+        values: list[tuple[str, int, str, int, str, float, str, str, dict]],
+    ) -> None:
 
         self._db.executemany(
             """
-            INSERT INTO sensor_events (
+            INSERT INTO temperature_events (
+                event_id,
+                cloud_received_timestamp,
+                cad_id,
+                meter_update_timestamp,
+                type,
+                reading,
+                source,
+                units,
+                event_metadata                    
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            values,
+        )
+
+    def insert_humidity_events(
+        self, values: list[tuple[str, int, str, int, str, float, str, str, dict]]
+    ) -> None:
+
+        self._db.executemany(
+            """
+            INSERT INTO humidity_events (
                 event_id,
                 cloud_received_timestamp,
                 cad_id,

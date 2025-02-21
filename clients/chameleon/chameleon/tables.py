@@ -11,10 +11,12 @@ def initialize_tables() -> None:
     db = ChameleonDB("chameleon.duckdb", read_only=False)
 
     db.delete_table("power_events")
-    db.delete_table("sensor_events")
+    db.delete_table("temperature_events")
+    db.delete_table("humidity_events")
 
     db.create_power_table()
-    db.create_sensor_table()
+    db.create_temperature_table()
+    db.create_humidity_table()
 
 
 def add_entries(date: str) -> None:
