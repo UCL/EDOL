@@ -62,7 +62,6 @@ class ChameleonDB:
                 meter_update_timestamp TIMESTAMP,
                 type ENUM('cad', 'dcc', 'amr'),
                 reading FLOAT,
-                source ENUM('temp', 'humidity'),
                 units STRING,
                 event_metadata JSON
             )
@@ -79,7 +78,6 @@ class ChameleonDB:
                 meter_update_timestamp TIMESTAMP,
                 type ENUM('cad', 'dcc', 'amr'),
                 reading FLOAT,
-                source ENUM('temp', 'humidity'),
                 units STRING,
                 event_metadata JSON
             )
@@ -154,7 +152,6 @@ class ChameleonDB:
                 meter_update_timestamp[i],
                 DataSource.Name(e.source),
                 e.reading,
-                SensorType.Name(e.type),
                 e.units,
                 {},
             )
@@ -172,7 +169,6 @@ class ChameleonDB:
                 meter_update_timestamp[i],
                 DataSource.Name(e.source),
                 e.reading,
-                SensorType.Name(e.type),
                 e.units,
                 {},
             )
@@ -206,11 +202,10 @@ class ChameleonDB:
                 meter_update_timestamp,
                 type,
                 reading,
-                source,
                 units,
                 event_metadata                    
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             values,
         )
 
@@ -227,10 +222,9 @@ class ChameleonDB:
                 meter_update_timestamp,
                 type,
                 reading,
-                source,
                 units,
                 event_metadata                    
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             values,
         )
