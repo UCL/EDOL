@@ -1,13 +1,23 @@
+from datetime import datetime, timedelta
+from pprint import pprint
+
 from chameleon.db import ChameleonDB
 from chameleon.s3 import ChameleonS3Client
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
-from pprint import pprint
 
 
-def create_tables() -> None:
+def initialize_tables() -> None:
 
-    refresh_power_table = True
-    refresh_sensor_table = True
+    db = ChameleonDB("chameleon.duckdb", read_only=False)
+
+    db.delete_table("power_events")
+    db.delete_table("sensor_events")
+
+    db.create_power_table()
+    db.create_sensor_table()
+
+
+def add_entries(date: str) -> None:
 
     client = ChameleonS3Client()
     db = ChameleonDB("chameleon.duckdb", read_only=False)
@@ -15,7 +25,14 @@ def create_tables() -> None:
     event_type_counts: dict[str, int] = {}
     cad_counts: dict[str, int] = {}
 
-    for f in client.get_data("2025/02/18/17"):
+    try:
+        data_files = client.get_data(date)
+        next(data_files)
+    except KeyError:
+        print(f"No data found for {date}")
+        return
+
+    for f in data_files:
         power_events: list[PowerEvent] = []
         sensor_events: list[SensorEvent] = []
 
@@ -40,16 +57,24 @@ def create_tables() -> None:
         )
 
         if power_events:
-            db.insert_power_events(power_events, refresh_table=refresh_power_table)
-            refresh_power_table = False
+            db.insert_power_events(power_events, refresh_table=False)
 
         if sensor_events:
-            db.insert_sensor_events(sensor_events, refresh_table=refresh_sensor_table)
-            refresh_sensor_table = False
+            db.insert_sensor_events(sensor_events, refresh_table=False)
 
     pprint(event_type_counts)
     pprint(cad_counts)
 
 
 if __name__ == "__main__":
-    create_tables()
+    initialize_tables()
+
+    date_list = [
+        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(10)
+    ]
+    date_list.reverse()
+
+    print(date_list)
+
+    for date in date_list:
+        add_entries(date)

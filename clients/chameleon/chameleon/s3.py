@@ -42,6 +42,10 @@ class ChameleonS3Client:
         paginator = self.client.get_paginator("list_objects_v2")
         page_iterator = paginator.paginate(Bucket=self.bucket_name, Prefix=prefix)
         for page in page_iterator:
+
+            if "Contents" not in page:
+                raise KeyError(f"No data found for prefix {prefix}")
+
             for file in page["Contents"]:
                 if file["Key"].endswith(extension):
                     for metadata in self.parse_protobuf(file["Key"]):
