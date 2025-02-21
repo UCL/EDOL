@@ -8,6 +8,7 @@ cache/
 *.sqlite
 *.sqlite3
 *.db
+*.duckdb
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,vim,node,linux,macos,python,windows,intellij,backup
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,vim,node,linux,macos,python,windows,intellij,backup
