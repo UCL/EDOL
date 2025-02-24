@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "chameleon"
+version = "0.1.0"
+description = ""
+authors = ["Cristian Dinu <c.dinu@ucl.ac.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+boto3 = "^1.36.21"
+duckdb = "^1.2.0"
+protobuf = "^5.29.3"
+
+
+[tool.poetry.group.dev.dependencies]
+types-boto3 = "^1.36.21"
+types-protobuf = "^5.29.1.20250208"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
