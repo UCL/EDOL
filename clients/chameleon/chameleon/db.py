@@ -29,7 +29,7 @@ class ChameleonDB:
     def create_power_table(self) -> None:
         self._db.execute(
             """
-            CREATE TABLE power_events (
+            CREATE TABLE IF NOT EXISTS power_events (
                 event_id UUID PRIMARY KEY,
                 received TIMESTAMP,
                 cad_id STRING,
@@ -46,7 +46,7 @@ class ChameleonDB:
     def create_temperature_table(self) -> None:
         self._db.execute(
             """
-            CREATE TABLE temperature_events (
+            CREATE TABLE IF NOT EXISTS temperature_events (
                 event_id UUID PRIMARY KEY,
                 cloud_received_timestamp TIMESTAMP,
                 cad_id STRING,
@@ -62,7 +62,7 @@ class ChameleonDB:
     def create_humidity_table(self) -> None:
         self._db.execute(
             """
-            CREATE TABLE humidity_events (
+            CREATE TABLE IF NOT EXISTS humidity_events (
                 event_id UUID PRIMARY KEY,
                 cloud_received_timestamp TIMESTAMP,
                 cad_id STRING,

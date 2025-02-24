@@ -65,10 +65,10 @@ def add_entries(date: str) -> None:
 
 
 if __name__ == "__main__":
-    # initialize_tables()
+    initialize_tables()
 
     date_list = [
-        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(2)
+        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(3)
     ]
     date_list.reverse()
 

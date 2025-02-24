@@ -6,25 +6,34 @@ CREATE TYPE sensor_type AS ENUM ('temp', 'humidity');
 CREATE TYPE sensor_units_type AS ENUM ('degc', 'percent');
 CREATE TYPE ambient_type AS ENUM ('none', 'red', 'amber', 'green');
 -- TABLES --
-CREATE TABLE power_events (
+CREATE TABLE IF NOT EXISTS power_events (
     event_id UUID PRIMARY KEY,
     received TIMESTAMP_MS,
-    cad_id VARCHAR,
+    cad_id STRING,
     commodity commodity_type,
-    reading_timestamp TIMESTAMP_MS,
+    reading_timestamp TIMESTAMP,
     source data_source_type,
-    reading BIGINT,
+    reading FLOAT,
     ambient ambient_type,
     event_metadata JSON
 );
-CREATE TABLE sensor_events (
+CREATE TABLE IF NOT EXISTS temperature_events (
     event_id UUID PRIMARY KEY,
-    cloud_received_timestamp TIMESTAMP_MS,
-    cad_id VARCHAR,
-    meter_update_timestamp TIMESTAMP_MS,
-    type sensor_type,
-    reading INTEGER,
-    source data_source_type,
-    units sensor_units_type,
+    cloud_received_timestamp TIMESTAMP,
+    cad_id STRING,
+    meter_update_timestamp TIMESTAMP,
+    type data_source_type,
+    reading FLOAT,
+    units STRING,
+    event_metadata JSON
+);
+CREATE TABLE IF NOT EXISTS humidity_events (
+    event_id UUID PRIMARY KEY,
+    cloud_received_timestamp TIMESTAMP,
+    cad_id STRING,
+    meter_update_timestamp TIMESTAMP,
+    type data_source_type,
+    reading FLOAT,
+    units STRING,
     event_metadata JSON
 );
