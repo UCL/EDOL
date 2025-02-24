@@ -26,20 +26,11 @@ class ChameleonDB:
             with open(Path(__file__).parent / "schema.sql") as f:
                 self._db.execute(f.read())
 
-    def table_exists(self, table_name: str) -> bool:
-        return (
-            self._db.execute(f"SELECT * FROM {table_name} LIMIT 1").fetchone()
-            is not None
-        )
-
-    def delete_table(self, table_name: str) -> None:
-        self._db.execute(f"DROP TABLE IF EXISTS {table_name}")
-
     def create_power_table(self) -> None:
         self._db.execute(
             """
             CREATE TABLE power_events (
-                event_id STRING,
+                event_id UUID PRIMARY KEY,
                 received TIMESTAMP,
                 cad_id STRING,
                 commodity ENUM('elec', 'gas'),
@@ -56,7 +47,7 @@ class ChameleonDB:
         self._db.execute(
             """
             CREATE TABLE temperature_events (
-                event_id STRING,
+                event_id UUID PRIMARY KEY,
                 cloud_received_timestamp TIMESTAMP,
                 cad_id STRING,
                 meter_update_timestamp TIMESTAMP,
@@ -72,7 +63,7 @@ class ChameleonDB:
         self._db.execute(
             """
             CREATE TABLE humidity_events (
-                event_id STRING,
+                event_id UUID PRIMARY KEY,
                 cloud_received_timestamp TIMESTAMP,
                 cad_id STRING,
                 meter_update_timestamp TIMESTAMP,
@@ -116,7 +107,7 @@ class ChameleonDB:
 
         self._db.executemany(
             """
-            INSERT INTO power_events (
+            INSERT OR IGNORE INTO power_events (
                 event_id,
                 received,
                 cad_id,
@@ -195,7 +186,7 @@ class ChameleonDB:
 
         self._db.executemany(
             """
-            INSERT INTO temperature_events (
+            INSERT OR IGNORE INTO temperature_events (
                 event_id,
                 cloud_received_timestamp,
                 cad_id,
@@ -215,7 +206,7 @@ class ChameleonDB:
 
         self._db.executemany(
             """
-            INSERT INTO humidity_events (
+            INSERT OR IGNORE INTO humidity_events (
                 event_id,
                 cloud_received_timestamp,
                 cad_id,

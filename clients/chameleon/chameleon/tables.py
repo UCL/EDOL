@@ -10,10 +10,6 @@ def initialize_tables() -> None:
 
     db = ChameleonDB("chameleon.duckdb", read_only=False)
 
-    db.delete_table("power_events")
-    db.delete_table("temperature_events")
-    db.delete_table("humidity_events")
-
     db.create_power_table()
     db.create_temperature_table()
     db.create_humidity_table()
@@ -69,10 +65,10 @@ def add_entries(date: str) -> None:
 
 
 if __name__ == "__main__":
-    initialize_tables()
+    # initialize_tables()
 
     date_list = [
-        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(10)
+        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(2)
     ]
     date_list.reverse()
 
