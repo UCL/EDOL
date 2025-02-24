@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS temperature_events (
     cad_id STRING,
     meter_update_timestamp TIMESTAMP,
     type data_source_type,
-    reading FLOAT,
-    units STRING,
+    reading INTEGER,
+    units sensor_units_type,
     event_metadata JSON
 );
 CREATE TABLE IF NOT EXISTS humidity_events (
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS humidity_events (
     cad_id STRING,
     meter_update_timestamp TIMESTAMP,
     type data_source_type,
-    reading FLOAT,
-    units STRING,
+    reading INTEGER,
+    units sensor_units_type,
     event_metadata JSON
 );

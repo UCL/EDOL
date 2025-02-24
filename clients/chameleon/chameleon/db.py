@@ -9,6 +9,7 @@ from chameleon.generated.chameleon_pb2 import (
     DataSource,
     Ambient,
     SensorType,
+    SensorUnits,
 )
 
 
@@ -25,55 +26,6 @@ class ChameleonDB:
         if not db_path_exists:
             with open(Path(__file__).parent / "schema.sql") as f:
                 self._db.execute(f.read())
-
-    def create_power_table(self) -> None:
-        self._db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS power_events (
-                event_id UUID PRIMARY KEY,
-                received TIMESTAMP,
-                cad_id STRING,
-                commodity ENUM('elec', 'gas'),
-                reading_timestamp TIMESTAMP,
-                source ENUM('cad', 'dcc', 'amr'),
-                reading FLOAT,
-                ambient ENUM('none', 'red', 'amber', 'green'),
-                event_metadata JSON
-            )
-            """
-        )
-
-    def create_temperature_table(self) -> None:
-        self._db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS temperature_events (
-                event_id UUID PRIMARY KEY,
-                cloud_received_timestamp TIMESTAMP,
-                cad_id STRING,
-                meter_update_timestamp TIMESTAMP,
-                type ENUM('cad', 'dcc', 'amr'),
-                reading FLOAT,
-                units STRING,
-                event_metadata JSON
-            )
-            """
-        )
-
-    def create_humidity_table(self) -> None:
-        self._db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS humidity_events (
-                event_id UUID PRIMARY KEY,
-                cloud_received_timestamp TIMESTAMP,
-                cad_id STRING,
-                meter_update_timestamp TIMESTAMP,
-                type ENUM('cad', 'dcc', 'amr'),
-                reading FLOAT,
-                units STRING,
-                event_metadata JSON
-            )
-            """
-        )
 
     def insert_power_events(
         self, events: list[PowerEvent], refresh_table: bool
@@ -143,7 +95,7 @@ class ChameleonDB:
                 meter_update_timestamp[i],
                 DataSource.Name(e.source),
                 e.reading,
-                e.units,
+                SensorUnits.Name(e.units),
                 {},
             )
             for i, e in enumerate(events)
@@ -160,7 +112,7 @@ class ChameleonDB:
                 meter_update_timestamp[i],
                 DataSource.Name(e.source),
                 e.reading,
-                e.units,
+                SensorUnits.Name(e.units),
                 {},
             )
             for i, e in enumerate(events)

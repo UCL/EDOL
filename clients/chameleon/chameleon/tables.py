@@ -8,11 +8,7 @@ from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 
 def initialize_tables() -> None:
 
-    db = ChameleonDB("chameleon.duckdb", read_only=False)
-
-    db.create_power_table()
-    db.create_temperature_table()
-    db.create_humidity_table()
+    ChameleonDB("chameleon.duckdb", read_only=False)
 
 
 def add_entries(date: str) -> None:
