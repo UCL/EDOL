@@ -31,8 +31,10 @@ class ChameleonDB:
         self, events: list[PowerEvent], refresh_table: bool
     ) -> None:
 
-        received_timestamp = [datetime.fromtimestamp(e.received / 1000) for e in events]
-        reading_timestamp = [
+        received_timestamps = [
+            datetime.fromtimestamp(e.received / 1000) for e in events
+        ]
+        reading_timestamps = [
             datetime.fromtimestamp(e.reading_timestamp / 1000) for e in events
         ]
 
@@ -41,10 +43,10 @@ class ChameleonDB:
         ] = [
             (
                 e.event_id,
-                received_timestamp[i],
+                received_timestamps[i],
                 e.cad_id,
                 Commodity.Name(e.source),
-                reading_timestamp[i],
+                reading_timestamps[i],
                 DataSource.Name(e.source),
                 e.reading,
                 Ambient.Name(e.ambient),
