@@ -1,0 +1,265 @@
+syntax = "proto3";
+
+message Metadata {
+    repeated Event events = 1;
+    string message_id = 2;
+    uint64 sent = 3;
+}
+
+message Event {
+    oneof EventType {
+        MeterEvent meter_event = 1;
+        PowerEvent power_event = 2;
+        CumulativeEvent cumulative_event = 3;
+        SensorEvent sensor_event = 4;
+        StatusEvent status_event = 5;
+        PriceEvent price_event = 6;
+        HalfHourEvent halfhour_event = 7;
+        CumulativeHistoryEvent cumulative_history_event = 8;
+        OneMinuteEvent one_minute_event = 9;
+        TariffEvent tariff_event = 10;
+        MeterReadingDeltaEvent meter_reading_delta_event = 11;
+    }
+}
+
+message MeterEvent {
+    string event_id = 1;
+    uint64 received = 2;
+    string cad_id = 3;
+    Commodity commodity = 4;
+    uint64 reading_timestamp = 5;
+    DataSource source = 6;
+    Units units = 7;
+    uint64 reading = 8;
+    map<string, string> event_metadata = 9;
+}
+
+message PowerEvent {
+    string event_id = 1;
+    uint64 received = 2;
+    string cad_id = 3;
+    Commodity commodity = 4;
+    uint64 reading_timestamp = 5;
+    DataSource source = 6;
+    sint64 reading = 7;
+    Ambient ambient = 8;
+    map<string, string> event_metadata = 9;
+}
+
+message CumulativeEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string cad_id = 3;
+    uint64 period_start_timestamp = 4;
+    uint64 meter_update_timestamp = 5;
+    Period period = 6;
+    DataSource source = 7;
+    Commodity commodity = 8;
+    int32 consumption = 9;
+    Units consumption_units = 10;
+    int32 cost = 11;
+    int32 cost_exponent = 12;
+    uint32 currency = 13;
+    map<string, string> event_metadata = 14;
+}
+
+message CumulativeHistoryEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string cad_id = 3;
+    uint64 period_start_timestamp = 4;
+    Period period = 5;
+    DataSource source = 6;
+    Commodity commodity = 7;
+    int32 consumption = 8;
+    Units consumption_units = 9;
+    int32 cost = 10;
+    int32 cost_exponent = 11;
+    uint32 currency = 12;
+    map<string, string> event_metadata = 13;
+}
+
+message SensorEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string cad_id = 3;
+    uint64 meter_update_timestamp = 4;
+    SensorType type = 5;
+    int32 reading = 6;
+    DataSource source = 7;
+    SensorUnits units = 8;
+    map<string, string> event_metadata = 9;
+}
+
+message StatusEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    uint32 feature_flags = 3;
+    uint64 device_timestamp = 4;
+    uint64 last_boot_timestamp = 5;
+    reserved "last_reboot_reason";
+    reserved 6;
+    string elec_import_site_id = 7;
+    reserved "elec_export_site_id";
+    string gas_import_site_id = 8;
+    bool elec_connected = 9;
+    bool gas_connected = 10;
+    bool han_connected = 11;
+    bool cloud_connected = 12;
+    reserved "battery_status";
+    reserved 13;
+    reserved "battery_level";
+    reserved 14;
+    map<string, string> event_metadata = 15;
+}
+
+message PriceEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string cad_id = 3;
+    uint64 rate_start = 4;
+    uint64 rate_valid_until = 5;
+    Commodity commodity = 6;
+    DataSource source = 7;
+    int32 rate = 8;
+    int32 rate_exponent = 9;
+    string standing_charge_applied = 10;
+    int32 standing_charge = 11;
+    int32 standing_charge_exponent = 12;
+    uint32 currency = 13;
+    map<string, string> event_metadata = 14;
+}
+
+message HalfHourEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string device_id = 3;
+    uint64 period_start_timestamp = 4;
+    Commodity commodity = 5;
+    DataSource source = 6;
+    uint32 consumption = 7;
+    Units units = 8;
+    int32 cost = 9;
+    int32 cost_exponent = 10;
+    uint32 currency = 11;
+    map<string, string> event_metadata = 12;
+}
+
+message OneMinuteEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string device_id = 3;
+    uint64 previous_reading_timestamp = 4;
+    uint64 current_reading_timestamp = 5;
+    Commodity commodity = 6;
+    DataSource source = 7;
+    uint32 consumption = 8;
+    Units units = 9;
+    int32 cost = 10;
+    int32 cost_exponent = 11;
+    uint32 currency = 12;
+    map<string, string> event_metadata = 13;
+}
+
+message MeterReadingDeltaEvent {
+    string event_id = 1;
+    string device_id = 2;
+    uint64 previous_reading_timestamp = 3;
+    uint64 current_reading_timestamp = 4;
+    Commodity commodity = 5;
+    DataSource source = 6;
+    uint32 consumption = 7;
+    Units units = 8;
+    map<string, string> event_metadata = 9;
+}
+
+message TariffEvent {
+    string event_id = 1;
+    uint64 cloud_received_timestamp = 2;
+    string device_id = 3;
+    DataSource source = 4;
+    string tariff_name = 5;
+    string supplier_name = 6;
+    Commodity commodity = 7;
+    uint64 start = 8;
+    uint64 end = 9;
+    uint32 currency = 10;
+    uint32 price_exponent = 11;
+    string time_zone = 12;
+    string standing_charge_applied = 13;
+    uint32 standing_charge = 14;
+    repeated PriceBand price_bands = 15;
+    repeated TimeOfUseRate time_of_use_rates = 16;
+    repeated SpecialDay special_days = 17;
+    repeated BlockRate block_rates = 18;
+    map<string, string> event_metadata = 19;
+}
+
+// ====== DATA TYPES ===== 
+
+enum SensorType {
+    temp = 0;
+    humidity = 1;
+}
+
+enum Period {
+    day = 0;
+    week = 1;
+    month = 2;
+}
+
+enum Commodity {
+    elec = 0;
+    gas = 1;
+}
+
+enum DataSource {
+    cad = 0;
+    dcc = 1;
+    amr = 2;
+}
+
+message PriceBand {
+    string id = 1;
+    string name = 2;
+    int64 price = 3;
+}
+
+message TimeOfUseRate {
+    string price_band_id = 1;
+    repeated uint32 days = 2; // 0-6 = Monday to Sunday; other numbers may represent special days
+    string start_time = 3;
+    string start_date = 4;    // ISO-8601 date
+}
+
+message BlockRate {
+    string price_band_id = 1;
+    repeated uint32 days = 2; // 0-6 = Monday to Sunday; other numbers may represent special days
+    uint32 threshold = 3;
+}
+
+message SpecialDay {
+    string day_name = 1;
+    string date = 2;       // ISO-8601 date
+    uint32 day_number = 3; // a number greater than 6, see TimeOfUseRate
+}
+
+// ====== DATA UNITS ===== 
+enum Units {
+    Wh = 0;
+    l = 1;
+}
+
+enum SensorUnits {                                          
+    degc = 0;
+    percent = 1;
+}
+
+// =======================
+
+enum Ambient {
+    none = 0;
+    red = 1;
+    amber = 2;
+    green = 3;
+}

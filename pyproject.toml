@@ -62,5 +62,8 @@ line_length = 88
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
-ignore_missing_imports = true
+ignore_missing_imports = false
 strict = true
+exclude = [
+    '/generated/'
+]
