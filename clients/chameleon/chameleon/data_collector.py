@@ -6,9 +6,6 @@ from chameleon.s3 import ChameleonS3Client
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 
 
-ChameleonDB("chameleon.duckdb", read_only=False)
-
-
 def add_entries(date: str) -> None:
 
     client = ChameleonS3Client()
@@ -58,7 +55,7 @@ def add_entries(date: str) -> None:
     pprint(cad_counts)
 
 
-def collect_data(start_date=datetime(2025, 2, 1), end_date=datetime.today()) -> None:
+def collect_data(start_date: datetime, end_date: datetime) -> None:
 
     if start_date > end_date:
         raise ValueError("Start date must be before end date")
@@ -73,4 +70,4 @@ def collect_data(start_date=datetime(2025, 2, 1), end_date=datetime.today()) -> 
 
 
 if __name__ == "__main__":
-    collect_data()
+    collect_data(datetime(2021, 1, 1), datetime.today())
