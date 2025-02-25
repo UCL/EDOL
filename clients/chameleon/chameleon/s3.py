@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Generator
 
 import boto3
@@ -6,6 +7,7 @@ import boto3.s3
 from chameleon.generated.chameleon_pb2 import Metadata
 
 DEFAULT_AWS_BUCKET = "edol-chameleon-pilot-bucket"
+logger = logging.getLogger(__name__)
 
 
 class ChameleonS3Client:
@@ -44,7 +46,9 @@ class ChameleonS3Client:
         for page in page_iterator:
 
             if "Contents" not in page:
-                raise KeyError(f"No data found for prefix {prefix}")
+                logger.info(f"No files found for {prefix}")
+                exit()
+                continue
 
             for file in page["Contents"]:
                 if file["Key"].endswith(extension):

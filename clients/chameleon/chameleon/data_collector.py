@@ -1,3 +1,5 @@
+import logging
+
 from datetime import datetime, timedelta
 from pprint import pprint
 
@@ -5,8 +7,10 @@ from chameleon.db import ChameleonDB
 from chameleon.s3 import ChameleonS3Client
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 
+logging.basicConfig(level=logging.INFO)
 
-def add_entries(date: str) -> None:
+
+def add_entries(date: datetime) -> None:
 
     client = ChameleonS3Client()
     db = ChameleonDB("chameleon.duckdb", read_only=False)
@@ -14,12 +18,7 @@ def add_entries(date: str) -> None:
     event_type_counts: dict[str, int] = {}
     cad_counts: dict[str, int] = {}
 
-    try:
-        data_files = client.get_data(date)
-        next(data_files)
-    except KeyError:
-        print(f"No data found for {date}")
-        return
+    data_files = client.get_data(date.strftime("%Y/%m/%d"))
 
     for f in data_files:
         power_events: list[PowerEvent] = []
@@ -61,8 +60,7 @@ def collect_data(start_date: datetime, end_date: datetime) -> None:
         raise ValueError("Start date must be before end date")
 
     date_list = [
-        (start_date + timedelta(days=i)).strftime("%Y/%m/%d")
-        for i in range((end_date - start_date).days)
+        (start_date + timedelta(days=i)) for i in range((end_date - start_date).days)
     ]
 
     for date in date_list:
@@ -70,4 +68,4 @@ def collect_data(start_date: datetime, end_date: datetime) -> None:
 
 
 if __name__ == "__main__":
-    collect_data(datetime(2021, 1, 1), datetime.today())
+    collect_data(datetime(2025, 2, 1), datetime.today())
