@@ -63,12 +63,13 @@ def add_entries(date: str) -> None:
 if __name__ == "__main__":
     initialize_tables()
 
-    date_list = [
-        (datetime.today() - timedelta(days=i)).strftime("%Y/%m/%d") for i in range(3)
-    ]
-    date_list.reverse()
+    start_date = datetime(2025, 2, 1)
+    end_date = datetime.today()
 
-    print(date_list)
+    date_list = [
+        (start_date + timedelta(days=i)).strftime("%Y/%m/%d")
+        for i in range((end_date - start_date).days)
+    ]
 
     for date in date_list:
         add_entries(date)
