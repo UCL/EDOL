@@ -1,16 +1,29 @@
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import duckdb
 from chameleon.generated.chameleon_pb2 import (
-    PowerEvent,
-    SensorEvent,
+    Ambient,
     Commodity,
     DataSource,
-    Ambient,
+    PowerEvent,
+    SensorEvent,
     SensorType,
     SensorUnits,
 )
+
+type PowerEventRecord = tuple[
+    str, datetime, str, str, datetime, str, float, str, dict[str, Any]
+]
+
+type TemperatureRecord = tuple[
+    str, datetime, str, datetime, str, float, str, str, dict[str, Any]
+]
+
+type HumidityRecord = tuple[
+    str, datetime, str, datetime, str, float, str, str, dict[str, Any]
+]
 
 
 class ChameleonDB:
@@ -27,9 +40,7 @@ class ChameleonDB:
             with open(Path(__file__).parent / "schema.sql") as f:
                 self._db.execute(f.read())
 
-    def insert_power_events(
-        self, events: list[PowerEvent], refresh_table: bool
-    ) -> None:
+    def insert_power_events(self, events: list[PowerEvent]) -> None:
 
         received_timestamps = [
             datetime.fromtimestamp(e.received / 1000) for e in events
@@ -38,9 +49,7 @@ class ChameleonDB:
             datetime.fromtimestamp(e.reading_timestamp / 1000) for e in events
         ]
 
-        values: list[
-            tuple[str, datetime, str, str, datetime, str, float, float, dict]
-        ] = [
+        values: list[PowerEventRecord] = [
             (
                 e.event_id,
                 received_timestamps[i],
@@ -54,10 +63,6 @@ class ChameleonDB:
             )
             for i, e in enumerate(events)
         ]
-
-        if refresh_table:
-            self.delete_table("power_events")
-            self.create_power_table()
 
         self._db.executemany(
             """
@@ -76,66 +81,9 @@ class ChameleonDB:
             values,
         )
 
-    def insert_sensor_events(
-        self, events: list[SensorEvent], refresh_table: bool
-    ) -> None:
-
-        cloud_received_timestamp = [
-            datetime.fromtimestamp(e.cloud_received_timestamp / 1000) for e in events
-        ]
-        meter_update_timestamp = [
-            datetime.fromtimestamp(e.meter_update_timestamp / 1000) for e in events
-        ]
-
-        temperature_values: list[
-            tuple[str, datetime, str, datetime, str, float, str, str, dict]
-        ] = [
-            (
-                e.event_id,
-                cloud_received_timestamp[i],
-                e.cad_id,
-                meter_update_timestamp[i],
-                DataSource.Name(e.source),
-                e.reading,
-                SensorUnits.Name(e.units),
-                {},
-            )
-            for i, e in enumerate(events)
-            if SensorType.Name(e.type) == "temp"
-        ]
-
-        humidity_values: list[
-            tuple[str, datetime, str, datetime, str, float, str, str, dict]
-        ] = [
-            (
-                e.event_id,
-                cloud_received_timestamp[i],
-                e.cad_id,
-                meter_update_timestamp[i],
-                DataSource.Name(e.source),
-                e.reading,
-                SensorUnits.Name(e.units),
-                {},
-            )
-            for i, e in enumerate(events)
-            if SensorType.Name(e.type) == "humidity"
-        ]
-
-        if refresh_table:
-            self.delete_table("temperature_events")
-            self.create_temperature_table()
-
-            self.delete_table("humidity_events")
-            self.create_humidity_table()
-
-        self.insert_temperature_events(temperature_values)
-        self.insert_humidity_events(humidity_values)
-
-        pass
-
     def insert_temperature_events(
         self,
-        values: list[tuple[str, int, str, int, str, float, str, str, dict]],
+        values: list[TemperatureRecord],
     ) -> None:
 
         self._db.executemany(
@@ -154,9 +102,7 @@ class ChameleonDB:
             values,
         )
 
-    def insert_humidity_events(
-        self, values: list[tuple[str, int, str, int, str, float, str, str, dict]]
-    ) -> None:
+    def insert_humidity_events(self, values: list[HumidityRecord]) -> None:
 
         self._db.executemany(
             """
@@ -173,3 +119,47 @@ class ChameleonDB:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             values,
         )
+
+    def insert_sensor_events(self, events: list[SensorEvent]) -> None:
+
+        cloud_received_timestamp = [
+            datetime.fromtimestamp(e.cloud_received_timestamp / 1000) for e in events
+        ]
+        meter_update_timestamp = [
+            datetime.fromtimestamp(e.meter_update_timestamp / 1000) for e in events
+        ]
+
+        temperature_values: list[TemperatureRecord] = [
+            (
+                e.event_id,
+                cloud_received_timestamp[i],
+                e.cad_id,
+                meter_update_timestamp[i],
+                DataSource.Name(e.source),
+                e.reading,
+                SensorUnits.Name(e.units),
+                SensorType.Name(e.type),
+                {},
+            )
+            for i, e in enumerate(events)
+            if SensorType.Name(e.type) == "temp"
+        ]
+
+        humidity_values: list[HumidityRecord] = [
+            (
+                e.event_id,
+                cloud_received_timestamp[i],
+                e.cad_id,
+                meter_update_timestamp[i],
+                DataSource.Name(e.source),
+                e.reading,
+                SensorUnits.Name(e.units),
+                SensorType.Name(e.type),
+                {},
+            )
+            for i, e in enumerate(events)
+            if SensorType.Name(e.type) == "humidity"
+        ]
+
+        self.insert_temperature_events(temperature_values)
+        self.insert_humidity_events(humidity_values)
