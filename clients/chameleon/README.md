@@ -12,8 +12,8 @@ Thereafter, in order to get the access keys to the chameleon AWS services,
 3. Click on `Access keys` button. This should open a pop-up window with the access keys.
 4. Copy the terminal commands under Option 1 and paste them in the terminal. This will set the access keys in the terminal session.
 
-To run the chameleon data client, run the following command:
+To run the chameleon data collector, run the following command:
 
 ```bash
-python data_client.py
+python data_collector.py
 ```
