@@ -60,11 +60,12 @@ def add_entries(date: str) -> None:
     pprint(cad_counts)
 
 
-if __name__ == "__main__":
-    initialize_tables()
+def collect_data(start_date=datetime(2025, 2, 1), end_date=datetime.today()) -> None:
 
-    start_date = datetime(2025, 2, 1)
-    end_date = datetime.today()
+    if start_date > end_date:
+        raise ValueError("Start date must be before end date")
+
+    initialize_tables()
 
     date_list = [
         (start_date + timedelta(days=i)).strftime("%Y/%m/%d")
@@ -73,3 +74,7 @@ if __name__ == "__main__":
 
     for date in date_list:
         add_entries(date)
+
+
+if __name__ == "__main__":
+    collect_data()
