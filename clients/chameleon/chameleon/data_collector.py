@@ -6,9 +6,7 @@ from chameleon.s3 import ChameleonS3Client
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 
 
-def initialize_tables() -> None:
-
-    ChameleonDB("chameleon.duckdb", read_only=False)
+ChameleonDB("chameleon.duckdb", read_only=False)
 
 
 def add_entries(date: str) -> None:
@@ -64,8 +62,6 @@ def collect_data(start_date=datetime(2025, 2, 1), end_date=datetime.today()) -> 
 
     if start_date > end_date:
         raise ValueError("Start date must be before end date")
-
-    initialize_tables()
 
     date_list = [
         (start_date + timedelta(days=i)).strftime("%Y/%m/%d")
