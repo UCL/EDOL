@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS temperature_events (
     cloud_received_timestamp TIMESTAMP,
     cad_id STRING,
     meter_update_timestamp TIMESTAMP,
-    type data_source_type,
+    source data_source_type,
     reading INTEGER,
     units sensor_units_type,
     event_metadata JSON
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS humidity_events (
     cloud_received_timestamp TIMESTAMP,
     cad_id STRING,
     meter_update_timestamp TIMESTAMP,
-    type data_source_type,
+    source data_source_type,
     reading INTEGER,
     units sensor_units_type,
     event_metadata JSON

@@ -1,6 +1,5 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import duckdb
 from chameleon.generated.chameleon_pb2 import (
@@ -14,15 +13,15 @@ from chameleon.generated.chameleon_pb2 import (
 )
 
 type PowerEventRecord = tuple[
-    str, datetime, str, str, datetime, str, float, str, dict[str, Any]
+    str, datetime, str, str, datetime, str, float, str, dict[str, str]
 ]
 
 type TemperatureRecord = tuple[
-    str, datetime, str, datetime, str, float, str, str, dict[str, Any]
+    str, datetime, str, datetime, str, float, str, dict[str, str]
 ]
 
 type HumidityRecord = tuple[
-    str, datetime, str, datetime, str, float, str, str, dict[str, Any]
+    str, datetime, str, datetime, str, float, str, dict[str, str]
 ]
 
 
@@ -54,12 +53,12 @@ class ChameleonDB:
                 e.event_id,
                 received_timestamps[i],
                 e.cad_id,
-                Commodity.Name(e.source),
+                Commodity.Name(e.commodity),
                 reading_timestamps[i],
                 DataSource.Name(e.source),
                 e.reading,
                 Ambient.Name(e.ambient),
-                {},
+                dict(e.event_metadata),
             )
             for i, e in enumerate(events)
         ]
@@ -85,7 +84,6 @@ class ChameleonDB:
         self,
         values: list[TemperatureRecord],
     ) -> None:
-
         self._db.executemany(
             """
             INSERT OR IGNORE INTO temperature_events (
@@ -93,7 +91,7 @@ class ChameleonDB:
                 cloud_received_timestamp,
                 cad_id,
                 meter_update_timestamp,
-                type,
+                source,
                 reading,
                 units,
                 event_metadata                    
@@ -111,7 +109,7 @@ class ChameleonDB:
                 cloud_received_timestamp,
                 cad_id,
                 meter_update_timestamp,
-                type,
+                source,
                 reading,
                 units,
                 event_metadata                    
@@ -138,8 +136,7 @@ class ChameleonDB:
                 DataSource.Name(e.source),
                 e.reading,
                 SensorUnits.Name(e.units),
-                SensorType.Name(e.type),
-                {},
+                dict(e.event_metadata),
             )
             for i, e in enumerate(events)
             if SensorType.Name(e.type) == "temp"
@@ -154,8 +151,7 @@ class ChameleonDB:
                 DataSource.Name(e.source),
                 e.reading,
                 SensorUnits.Name(e.units),
-                SensorType.Name(e.type),
-                {},
+                dict(e.event_metadata),
             )
             for i, e in enumerate(events)
             if SensorType.Name(e.type) == "humidity"

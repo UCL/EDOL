@@ -67,4 +67,4 @@ def collect_data(start_date: datetime, end_date: datetime) -> None:
 
 
 if __name__ == "__main__":
-    collect_data(datetime(2025, 2, 1), datetime.today())
+    collect_data(datetime(2025, 2, 10), datetime(2025, 2, 23))

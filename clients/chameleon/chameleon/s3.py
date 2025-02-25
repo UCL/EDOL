@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from typing import Generator
 
 import boto3
@@ -47,7 +47,6 @@ class ChameleonS3Client:
 
             if "Contents" not in page:
                 logger.info(f"No files found for {prefix}")
-                exit()
                 continue
 
             for file in page["Contents"]:
