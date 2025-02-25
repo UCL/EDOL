@@ -1,11 +1,10 @@
 import logging
-
 from datetime import datetime, timedelta
 from pprint import pprint
 
 from chameleon.db import ChameleonDB
-from chameleon.s3 import ChameleonS3Client
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
+from chameleon.s3 import ChameleonS3Client
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,10 +44,10 @@ def add_entries(date: datetime) -> None:
         )
 
         if power_events:
-            db.insert_power_events(power_events, refresh_table=False)
+            db.insert_power_events(power_events)
 
         if sensor_events:
-            db.insert_sensor_events(sensor_events, refresh_table=False)
+            db.insert_sensor_events(sensor_events)
 
     pprint(event_type_counts)
     pprint(cad_counts)
