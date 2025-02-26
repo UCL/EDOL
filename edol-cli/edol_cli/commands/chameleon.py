@@ -47,3 +47,9 @@ def fetch(
         end_date = yesterday
 
     collect_data(start_date, end_date)
+
+
+@app.callback()
+def report() -> None:
+    """EDOL CLI tool."""
+    pass
