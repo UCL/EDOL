@@ -6,7 +6,7 @@ import typer
 from edol_cli.commands import climate, vaillant, version
 from edol_cli.config import Config
 
-APP_NAME = "edol-glowmarkt"
+APP_NAME = "edol"
 app = typer.Typer()
 
 logger = logging.getLogger(__name__)
