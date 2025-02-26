@@ -34,10 +34,10 @@ class ChameleonDB:
                 f"Database file {db_path} does not exist and read_only is True"
             )
 
-        self._db = duckdb.connect(db_path, read_only=read_only)
+        self.db = duckdb.connect(db_path, read_only=read_only)
         if not db_path_exists:
             with open(Path(__file__).parent / "schema.sql") as f:
-                self._db.execute(f.read())
+                self.db.execute(f.read())
 
     def insert_power_events(self, events: list[PowerEvent]) -> None:
 
@@ -63,7 +63,7 @@ class ChameleonDB:
             for i, e in enumerate(events)
         ]
 
-        self._db.executemany(
+        self.db.executemany(
             """
             INSERT OR IGNORE INTO power_events (
                 event_id,
@@ -84,7 +84,7 @@ class ChameleonDB:
         self,
         values: list[TemperatureRecord],
     ) -> None:
-        self._db.executemany(
+        self.db.executemany(
             """
             INSERT OR IGNORE INTO temperature_events (
                 event_id,
@@ -102,7 +102,7 @@ class ChameleonDB:
 
     def insert_humidity_events(self, values: list[HumidityRecord]) -> None:
 
-        self._db.executemany(
+        self.db.executemany(
             """
             INSERT OR IGNORE INTO humidity_events (
                 event_id,

@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
-import duckdb
+
+from chameleon.db import ChameleonDB
 
 
 def generate_report(
@@ -8,6 +9,7 @@ def generate_report(
     end_time: datetime,
     interval: str,
     output_file: Path,
+    chameleon_db: ChameleonDB,
 ) -> None:
 
     if start_time > end_time:
@@ -36,9 +38,7 @@ def generate_report(
             output_file=str(output_file),
         )
 
-        db = duckdb.connect("chameleon.duckdb", read_only=True)
-        db.execute(query)
-        db.close()
+    chameleon_db.db.execute(query)
 
 
 if __name__ == "__main__":
@@ -57,4 +57,5 @@ if __name__ == "__main__":
             datetime(2029, 1, 2),
             interval,
             out_file,
+            ChameleonDB("chameleon.duckdb"),
         )
