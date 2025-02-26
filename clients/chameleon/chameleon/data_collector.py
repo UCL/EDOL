@@ -1,12 +1,11 @@
 import logging
 from datetime import datetime, timedelta
-from pprint import pprint
 
 from chameleon.db import ChameleonDB
 from chameleon.generated.chameleon_pb2 import PowerEvent, SensorEvent
 from chameleon.s3 import ChameleonS3Client
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def add_entries(date: datetime) -> None:
@@ -39,8 +38,8 @@ def add_entries(date: datetime) -> None:
                 sensor_events.append(sensor_event)
             else:
                 print(f"Unknown event type: {event_type}")
-        print(
-            f"Inserting {len(power_events)} power events and {len(sensor_events)} sensor events"
+        logger.info(
+            f"Inserting from {datetime.fromtimestamp(f.sent / 1000)} {len(power_events)} power events and {len(sensor_events)} sensor events"
         )
 
         if power_events:
@@ -49,8 +48,8 @@ def add_entries(date: datetime) -> None:
         if sensor_events:
             db.insert_sensor_events(sensor_events)
 
-    pprint(event_type_counts)
-    pprint(cad_counts)
+    logger.info(event_type_counts)
+    logger.info(cad_counts)
 
 
 def collect_data(start_date: datetime, end_date: datetime) -> None:
