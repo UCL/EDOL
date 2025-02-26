@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from edol_cli.commands import climate, vaillant, version
+from edol_cli.commands import chameleon, climate, vaillant, version
 from edol_cli.config import Config
 
 APP_NAME = "edol"
@@ -11,6 +11,7 @@ app = typer.Typer()
 
 logger = logging.getLogger(__name__)
 
+app.add_typer(chameleon.app, name="chameleon")
 app.add_typer(climate.app, name="climate")
 app.add_typer(vaillant.app, name="vaillant")
 app.add_typer(version.app, name="version")
