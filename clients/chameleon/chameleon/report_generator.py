@@ -30,7 +30,7 @@ def generate_report(
             f"Invalid interval... The first part of the interval must be a number. {interval.split()[-2]}"
         )
 
-    with open("binning.sql") as f:
+    with open(Path(__file__).parent / "binning.sql") as f:
         query = f.read().format(
             start_time=start_time.strftime("%Y-%m-%d"),
             end_time=end_time.strftime("%Y-%m-%d"),
